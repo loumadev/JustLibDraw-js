@@ -813,6 +813,9 @@ JL.WebGLShader = class {
 		this.bind();
 
 		//Calculate count
+		if(typeof options === "number") mode = options;
+
+		//Calculate count
 		if(count == undefined) count = this.indexBuffer ? this.indexBuffer.length : this.attributes[0].buffer.length / this.attributes[0].size;
 
 		//Enable and use all attributes
