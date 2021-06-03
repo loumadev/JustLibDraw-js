@@ -797,13 +797,15 @@ JL.WebGLShader = class {
 
 	/**
 	 * 
-	 * @param {DrawOptions} options 
+	 * @param {DrawOptions | number} options Drawing options or rendering mode
 	 */
-	draw({
-		mode = WebGLRenderingContext.TRIANGLES,
-		offset = 0,
-		count = undefined
-	}) {
+	draw(options) {
+		let {
+			mode = WebGLRenderingContext.TRIANGLES,	// eslint-disable-line prefer-const
+			offset = 0,	// eslint-disable-line prefer-const
+			count = undefined
+		} = options;
+
 		//Check if there are any attributes to draw
 		const l = this.attributes.length;
 		if(l == 0) return;
