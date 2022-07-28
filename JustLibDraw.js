@@ -3,7 +3,7 @@
  * JustLibDraw JavaScript Library v0.0.1
  * Rendering Canvas addon for JustLib Library
  *
- * Copyright 2019-2020
+ * Copyright 2019-2022
  * Date: 2019-06-16T13:01Z
  */
 
@@ -289,6 +289,12 @@ function createCanvas(width = 800, height = 600, renderer = "2d", options = {}, 
 	return node;
 }
 
+/**
+ * Returns a Vector containing center of the specified canvas
+ * @deprecated Use `JL.Renderer.prototype.center` instead
+ * @param {HTMLCanvasElement} _canvas
+ * @return {Vector} 
+ */
 function getCenter(_canvas) {
 	return new Vector(_canvas.width / 2, _canvas.height / 2);
 }
@@ -312,6 +318,7 @@ function Fullscreen(_canvas = canvas) {
 
 /**
  * Resizes canvas to specific dimensions.
+ * @deprecated Use `JL.Renderer.prototype.resize(...)` instead
  * @param {number} width
  * @param {number} height
  * @param {HTMLCanvasElement} _canvas
@@ -329,6 +336,7 @@ function Resize(width, height, _canvas = canvas) {
 
 /**
  * Clears certain area or whole canvas.
+ * @deprecated Use `JL.Renderer2D.prototype.clear(...)` instead
  * @param {number} x X-position of start
  * @param {number} y Y-position of start
  * @param {number} width Width of area
@@ -345,6 +353,7 @@ function Clear(x = 0, y = 0, width = canvas.width, height = canvas.height, _canv
 
 /**
  * Translate origin of the canvas.
+ * @deprecated Use `JL.Renderer2D.prototype.translate(...)` instead
  * @param {number} x X-position or Vector position
  * @param {number} y Y-position
  * @param {HTMLCanvasElement} _canvas
@@ -358,6 +367,7 @@ function Translate(x = 0, y = 0, _canvas = canvas) {
 
 /**
  * Rotates canvas origin by angle.
+ * @deprecated Use `JL.Renderer2D.prototype.rotate(...)` instead
  * @param {number} angle angle in radians
  * @param {HTMLCanvasElement} _canvas
  */
@@ -369,6 +379,7 @@ function Rotate(angle, _canvas = canvas) {
 
 /**
  * Saves canvas original rotation, position...
+ * @deprecated Use `JL.Renderer2D.prototype.save(...)` instead
  * @param {HTMLCanvasElement} _canvas
  */
 function Push(_canvas = canvas) {
@@ -376,8 +387,10 @@ function Push(_canvas = canvas) {
 	var _ctx = _canvas.getContext(_canvas.renderer);
 	_ctx.save();
 }
+
 /**
  * Restores canvas original rotation, position...
+ * @deprecated Use `JL.Renderer2D.prototype.restore(...)` instead
  * @param {HTMLCanvasElement} _canvas
  */
 function Pop(_canvas = canvas) {
@@ -388,6 +401,7 @@ function Pop(_canvas = canvas) {
 
 /**
  * Sets background.
+ * @deprecated Use `JL.Renderer.prototype.setBackground(...)` instead
  * @param {number} r
  * @param {number} [g=r]
  * @param {number} [b=r]
