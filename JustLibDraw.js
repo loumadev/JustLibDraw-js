@@ -20,6 +20,14 @@
  * @typedef {import('./JustLib.js').Matrix} Matrix
  */
 
+/**
+ * @typedef {import('./JustLib.js').Dimensions} Dimensions
+ */
+
+/**
+ * @typedef {import('./JustLib.js').Color} Color
+ */
+
 
 var canvas, ctx,
 	Height, Width,
@@ -163,6 +171,297 @@ JL.Renderer2D = class extends JL.Renderer {
 		 */
 		this.ctx = this.node.getContext("2d", this.contextOptions);
 	}
+
+
+	/**
+	 * @typedef {Object} FillOptions
+	 * @prop {Color | string} [fillColor] Color of the fill
+	 */
+
+	/**
+	 * @typedef {Object} StrokeOptions
+	 * @prop {Color | string} [strokeColor] Color of the stroke
+	 * @prop {number} [strokeWidth] Width of the stroke
+	 * @prop {number[]} [strokePattern=[]] Dash pattern of the stroke
+	 * @prop {"round" | "bevel" | "miter"} [strokeJoin="miter"] Stroke join style
+	 * @prop {number} [miterLimit=10] Miter limit
+	 */
+
+
+	/**
+	 * @typedef {Object} TextOptions
+	 * @prop {number} [size=18] Font size
+	 * @prop {string} [font="sans-serif"] Font family
+	 * @prop {number | string} [weight=400] Font weight
+	 * @prop {Color | string} [color="black"] Font color (alias of `fillColor`)
+	 * @prop {string} [center=false] Sets `align` to "center" and `baseline` to "middle" (shorthand for `align` and `baseline`)
+	 * @prop {"left" | "right" | "center" | "start" | "end"} [align="start"] Text alignment
+	 * @prop {"top" | "bottom" | "middle" | "alphabetic" | "hanging" | "ideographic"} [baseline="top"] Text baseline
+	 * 
+	 */
+
+	// eslint-disable-next-line valid-jsdoc
+	/**
+	 * Draws a text at the given position
+	 * @param {string} text Text to draw
+	 * @param {Vector} position Position of the text
+	 * @param {FillOptions & StrokeOptions & TextOptions} [options] Additional options
+	 */
+	drawText(text, position, options = {}) {
+		const {
+			size = 18,
+			font = "sans-serif",
+			weight = 400,
+			color = "black",
+			center = false,
+			align = center ? "center" : "start",
+			baseline = center ? "middle" : "top",
+			//FillOptions
+			fillColor = color,
+			//StrokeOptions
+			strokeColor = "black",
+			strokeWidth = 0,
+			strokePattern = [],
+			strokeJoin = "miter",
+			miterLimit = 10
+		} = options;
+
+		this.ctx.beginPath();
+
+		this.ctx.font = `${weight} ${size}px ${font}`;
+		this.ctx.fillStyle = fillColor;
+		this.ctx.textAlign = align;
+		this.ctx.textBaseline = baseline;
+
+		if(strokeWidth) {
+			this.ctx.strokeStyle = strokeColor;
+			this.ctx.lineWidth = strokeWidth;
+			this.ctx.lineJoin = strokeJoin;
+			this.ctx.miterLimit = miterLimit;
+			this.ctx.setLineDash(strokePattern);
+			this.ctx.strokeText(text + "", position.x, position.y);
+		}
+
+		this.ctx.fillText(text + "", position.x, position.y);
+
+		this.ctx.closePath();
+	}
+
+
+	/**
+	 * @typedef {Object} LineOptions
+	 * @prop {Color | string} [color="black"] Color of the line (alias of `strokeColor`)
+	 * @prop {number} [width=1] Width of the line (alias of `strokeWidth`)
+	 * @prop {"butt" | "round" | "square"} [cap="butt"] Line cap
+	 * @prop {"round" | "bevel" | "miter"} [join="miter"] Line join (alias of `strokeJoin`)
+	 */
+
+	// eslint-disable-next-line valid-jsdoc
+	/**
+	 * Draws a line between two points
+	 * @param {Vector} from Start point of the line
+	 * @param {Vector} to End point of the line
+	 * @param {StrokeOptions & LineOptions} [options] Additional options
+	 */
+	drawLine(from, to, options = {}) {
+		const {
+			color = "black",
+			width = 1,
+			cap = "butt",
+			join = "miter",
+			//StrokeOptions
+			strokeColor = color,
+			strokeWidth = width,
+			strokePattern = [],
+			strokeJoin = join,
+			miterLimit = 10
+		} = options;
+
+		const frac = strokeWidth % 2 ? 0.5 : 0;
+
+		this.ctx.beginPath();
+
+		this.ctx.lineWidth = strokeWidth;
+		this.ctx.strokeStyle = strokeColor;
+		this.ctx.lineCap = cap;
+		this.ctx.lineJoin = strokeJoin;
+		this.ctx.miterLimit = miterLimit;
+		this.ctx.setLineDash(strokePattern);
+
+		this.ctx.moveTo(
+			from.x + frac,
+			from.y + frac
+		);
+		this.ctx.lineTo(
+			to.x + frac,
+			to.y + frac
+		);
+		this.ctx.stroke();
+
+		this.ctx.closePath();
+	}
+
+
+	/**
+	 * @typedef {Object} RectangleOptions
+	 * @prop {Color | string} [color="black"] Color of the stroke (alias of `strokeColor`)
+	 * @prop {number} [width=1] Width of the stroke (alias of `strokeWidth`)
+	 */
+
+	// eslint-disable-next-line valid-jsdoc
+	/**
+	 * Draws a rectangle with the given position and size
+	 * @param {Vector} position Position of the rectangle
+	 * @param {Vector | Dimensions} size Second point of the rectangle or dimensions of the rectangle
+	 * @param {FillOptions & StrokeOptions & RectangleOptions} [options] Additional options
+	 */
+	drawRect(position, size, options = {}) {
+		const {
+			color = "black",
+			width = 1,
+			//FillOptions
+			fillColor = null,
+			//StrokeOptions
+			strokeColor = color,
+			strokeWidth = width,
+			strokePattern = [],
+			strokeJoin = "miter",
+			miterLimit = 10
+		} = options;
+
+		const rectWidth = size.x - position.x || size.w || 0;
+		const rectHeight = size.y - position.y || size.h || 0;
+
+		this.ctx.beginPath();
+
+		if(fillColor) {
+			this.ctx.fillStyle = fillColor;
+			this.ctx.fillRect(position.x, position.y, rectWidth, rectHeight);
+		}
+
+		if(strokeWidth) {
+			const frac = strokeWidth % 2 ? 0.5 : 0;
+
+			this.ctx.strokeStyle = strokeColor;
+			this.ctx.lineWidth = strokeWidth;
+			this.ctx.lineJoin = strokeJoin;
+			this.ctx.miterLimit = miterLimit;
+			this.ctx.setLineDash(strokePattern);
+			this.ctx.strokeRect(
+				position.x + frac,
+				position.y + frac,
+				rectWidth, rectHeight
+			);
+		}
+
+		this.ctx.closePath();
+	}
+
+
+	/**
+	 * @typedef {Object} EllipseOptions
+	 * @prop {Color | string} [color="black"] Color of the stroke (alias of `strokeColor`)
+	 * @prop {number} [width=1] Width of the stroke (alias of `strokeWidth`)
+	 * @prop {number} [start=0] Start angle of the ellipse
+	 * @prop {number} [end=2*Math.PI] End angle of the ellipse
+	 * @prop {number} [rotation=0] Angle of the ellipse rotation
+	 * @prop {boolean} [anticlockwise=false] Whether the ellipse is drawn anticlockwise
+	 */
+
+	// eslint-disable-next-line valid-jsdoc
+	/**
+	 * Draws an ellipse with the given position and size
+	 * @param {Vector} position Center of the ellipse
+	 * @param {number} radiusX Horizontal radius of the ellipse
+	 * @param {number} [radiusY=radiusX] Vertical radius of the ellipse (if not given, the circular arc is drawn)
+	 * @param {FillOptions & StrokeOptions & EllipseOptions} [options] Additional options
+	 */
+	drawEllipse(position, radiusX, radiusY = radiusX, options = {}) {
+		const {
+			color = "black",
+			width = 1,
+			start = 0,
+			end = 2 * Math.PI,
+			rotation = 0,
+			anticlockwise = false,
+			//FillOptions
+			fillColor = null,
+			//StrokeOptions
+			strokeColor = color,
+			strokeWidth = width,
+			strokePattern = []
+		} = options;
+
+		this.ctx.beginPath();
+
+		if(fillColor) {
+			this.ctx.fillStyle = fillColor;
+
+			if(radiusX === radiusY) {
+				this.ctx.arc(position.x, position.y, radiusX, start, end, anticlockwise);
+			} else {
+				this.ctx.ellipse(position.x, position.y, radiusX, radiusY, rotation, start, end, anticlockwise);
+			}
+
+			this.ctx.fill();
+		}
+
+		if(strokeWidth) {
+			this.ctx.strokeStyle = strokeColor;
+			this.ctx.lineWidth = strokeWidth;
+			this.ctx.setLineDash(strokePattern);
+
+			if(radiusX === radiusY) {
+				this.ctx.arc(position.x, position.y, radiusX, start, end, anticlockwise);
+			} else {
+				this.ctx.ellipse(position.x, position.y, radiusX, radiusY, rotation, start, end, anticlockwise);
+			}
+
+			this.ctx.stroke();
+		}
+
+		this.ctx.closePath();
+	}
+
+
+	/**
+	 * @typedef {Object} ImageOptions
+	 * @prop {Vector} [srcPosition] Position of the image in the source image (default: 0, 0)
+	 * @prop {Vector} [srcSize] Size of the image in the source image (default: source image size)
+	 * @prop {Vector} [size] Size of the image in the canvas (default: source image size)
+	 */
+
+	/**
+	 * Draws an image from the given source image at the given position
+	 * @param {Image | HTMLImageElement | HTMLVideoElement | HTMLCanvasElement} image
+	 * @param {Vector} position Position of the image in the canvas
+	 * @param {ImageOptions} [options] Additional options
+	 */
+	drawImage(image, position, options = {}) {
+		const {
+			srcPosition,
+			srcSize,
+			size
+		} = options;
+
+		const sx = srcPosition && srcPosition.x || 0;
+		const sy = srcPosition && srcPosition.y || 0;
+
+		const sw = srcSize && (srcSize.x - sx || srcSize.w) || image.naturalWidth || image.videoHeight || image.width;
+		const sh = srcSize && (srcSize.y - sy || srcSize.h) || image.naturalHeight || image.videoHeight || image.height;
+
+		const dw = size && (size.x - sx || size.w) || sw;
+		const dh = size && (size.y - sy || size.h) || sh;
+
+		this.ctx.drawImage(
+			image,
+			sx, sy,
+			sw, sh,
+			position.x, position.y,
+			dw, dh
+		);
+	}
+
 
 	/**
 	 * Clears the canvas
@@ -534,7 +833,10 @@ function _checkCanvas() {
 	else return true;
 }
 
-
+// eslint-disable-next-line valid-jsdoc
+/**
+ * @deprecated Use `JL.Renderer2D.prototype.drawText(...)` instead
+ */
 function Write(vector, text, size = 18, color = "white", font = "monospace", style = "normal", center = false, _canvas = canvas) {
 	_checkCanvas();
 	var _ctx = _canvas.getContext(_canvas.renderer);
@@ -554,6 +856,10 @@ function Write(vector, text, size = 18, color = "white", font = "monospace", sty
 	_ctx.closePath();
 }
 
+// eslint-disable-next-line valid-jsdoc
+/**
+ * @deprecated Use `JL.Renderer2D.prototype.drawLine(...)` instead
+ */
 function Line(vector1, vector2, width = 1, color = "white", _canvas = canvas) {
 	_checkCanvas();
 	var _ctx = _canvas.getContext(_canvas.renderer);
@@ -567,6 +873,10 @@ function Line(vector1, vector2, width = 1, color = "white", _canvas = canvas) {
 	_ctx.closePath();
 }
 
+// eslint-disable-next-line valid-jsdoc
+/**
+ * @deprecated Use `JL.Renderer2D.prototype.drawEllipse(...)` instead
+ */
 function Point(vector, radius = 1, color1 = "white", width = 0, color2 = "red", _canvas = canvas) {
 	_checkCanvas();
 	var _ctx = _canvas.getContext(_canvas.renderer);
@@ -583,6 +893,10 @@ function Point(vector, radius = 1, color1 = "white", width = 0, color2 = "red", 
 	_ctx.closePath();
 }
 
+// eslint-disable-next-line valid-jsdoc
+/**
+ * @deprecated Use `JL.Renderer2D.prototype.drawRect(...)` instead
+ */
 function Rectangle(vector, width, height, color1 = "white", width2 = 0, color2 = "red", _canvas = canvas) {
 	_checkCanvas();
 	var _ctx = _canvas.getContext(_canvas.renderer);
