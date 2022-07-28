@@ -745,7 +745,7 @@ function Framerate(fps) {
  * Adds ease-out transition between two values.
  * @param {number} from Starting number.
  * @param {number} to Final number.
- * @param {number} percent How many percent of differnce starting and final number should value change.
+ * @param {number} percent How many percent of difference starting and final number should value change.
  * @param {boolean} [fps=true]
  * @param {Function} finish
  * @param {number} [value=0.5]
@@ -763,7 +763,7 @@ function Lerp(from, to, percent, fps = true, finish, value = .5) {
  * Adds ease-out transition between two colors.
  * @param {Color} from Starting color.
  * @param {Color} to Final color.
- * @param {number} percent How many percent of differnce starting and final number should value change.
+ * @param {number} percent How many percent of difference starting and final number should value change.
  * @returns {Color}
  */
 function LerpColor(from, to, percent) {
@@ -991,7 +991,7 @@ JL.CLAMP_TO_EDGE = WebGLRenderingContext.CLAMP_TO_EDGE;
  */
 
 /**
- * @typedef {JL.UINT8 | JL.UINT16 | JL.UINT32} JL_TYPE_UNISGNED
+ * @typedef {JL.UINT8 | JL.UINT16 | JL.UINT32} JL_TYPE_UNSIGNED
  */
 
 
@@ -1913,7 +1913,7 @@ var changeBuffer = updateBuffer;
 
 
 /**
- * Update unoform content
+ * Update uniform content
  * @deprecated Use `JL.WebGLUniform#update(...)` instead
  * @param {WebGLRenderingContext} gl WebGL Rendering Context
  * @param {WebGLProgram} program Shader Program
@@ -1923,14 +1923,14 @@ var changeBuffer = updateBuffer;
  */
 function updateUniform(gl, program, location, datatype, data) {
 	//if(data.length % 2) throw new Error("[JustLibDraw] Invalid data pairs! (UniformLocation, DataToBeSet)");
-	const unoformMethod = "uniform" + datatype;
-	if(!(unoformMethod in gl)) throw new TypeError(datatype + " is not valid uniform data type");
+	const uniformMethod = "uniform" + datatype;
+	if(!(uniformMethod in gl)) throw new TypeError(datatype + " is not valid uniform data type");
 
 	//Select program
 	if(!gl.isProgram(program)) gl.useProgram(program);
 
 	//Update data
-	gl[unoformMethod]();
+	gl[uniformMethod]();
 	//for(var i = 0; i < data.length; i += 2) {
 	//	gl.uniformMatrix4fv(data[i + 0], false, new Float32Array(data[i + 1]));
 	//}
@@ -1986,7 +1986,7 @@ function createTexture(gl, content = null) {
 		1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE,
 		new Uint8Array([0, 0, 255, 255]));
 
-	//If there is default contentm, add it to the texture
+	//If there is default content, add it to the texture
 	if(content) updateTexture(gl, texture, content);
 
 	// eslint-disable-next-line no-constant-condition
@@ -2030,12 +2030,12 @@ function updateTexture(gl, texture, content) {
 /* Matrix Manipulation */
 
 /**
- * Constructs Perpective Projection matrix
+ * Constructs Perspective Projection matrix
  * @param {number} fov WebGL Rendering Context
  * @param {number} aspect Vertex or Fragment Shader
  * @param {number} zNear Source code
  * @param {number} zFar Source code
- * @returns {Matrix} Perpective Projection matrix
+ * @returns {Matrix} Perspective Projection matrix
  */
 Matrix.perspective = function(fov, aspect, zNear, zFar) {
 	return new Matrix([
