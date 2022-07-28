@@ -29,12 +29,13 @@
  */
 
 
-var canvas, ctx,
-	Height, Width,
-	CENTER, FPS = 60,
+var /** @deprecated */canvas, /** @deprecated */ctx,
+	/** @deprecated */Height, /** @deprecated */Width,
+	/** @deprecated */CENTER, FPS = 60,
 	Frames = 0,
 	fpsTime = 0,
 	FRAMERATE = 60,
+	/** @deprecated */
 	CANVASES = {
 		length: 0
 	};
@@ -44,17 +45,33 @@ var gl = WebGLRenderingContext;
 const CONTEXT_2D = CanvasRenderingContext2D;
 const CONTEXT_WEBGL = WebGLRenderingContext;
 
-
+/**
+ * @deprecated Use `JL.OrthographicCamera.prototype.projectionMatrix` instead
+ * */
 const PROJECTION_ORTHOGRAPHIC = new Matrix([
 	[1, 0, 0],
 	[0, 1, 0]
 ]);
 
+/** @deprecated */
 const Project = {
+	/**
+	 * @deprecated Use `JL.OrthographicCamera.prototype.projectionMatrix` instead
+	 * @param {Matrix} matrix Input view matrix
+	 * @returns {Vector}
+	 */
 	orth: function(matrix) {
 		var p = PROJECTION_ORTHOGRAPHIC.mult(matrix);
 		return new Vector(p.matrix[0][0], p.matrix[1][0]);
 	},
+
+	/**
+	 * @deprecated Use `JL.PerspectiveCamera.prototype.projectionMatrix` instead
+	 * @param {Matrix} matrix Input view matrix
+	 * @param {number} mult
+	 * @param {number} [depth=3]
+	 * @returns {Vector}
+	 */
 	pers: function(matrix, mult, depth = 3) {
 		var z = 1 / (depth - matrix.matrix[2][0]);
 
@@ -2031,6 +2048,7 @@ function updateTexture(gl, texture, content) {
 
 /**
  * Constructs Perspective Projection matrix
+ * @deprecated Use `JL.PerspectiveCamera.prototype.projectionMatrix` instead
  * @param {number} fov WebGL Rendering Context
  * @param {number} aspect Vertex or Fragment Shader
  * @param {number} zNear Source code
