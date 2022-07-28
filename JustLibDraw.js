@@ -164,29 +164,40 @@ JL.Renderer2D = class extends JL.Renderer {
 		this.ctx = this.node.getContext("2d", this.contextOptions);
 	}
 
+	/**
+	 * Clears the canvas
+	 */
 	clear() {
 		//Simple trick for clearing the canvas
 		this.node.width = this.node.width; /* eslint-disable-line */
 	}
 
 	/**
-	 *
-	 * @param {number | Vector} x
-	 * @param {number} y
+	 * Translates canvas origin to specified coordinates
+	 * @param {Vector} origin 2 component vector of new canvas origin
 	 */
-	translate(x, y) {
-		if(x instanceof Vector) this.ctx.translate(x.x, x.y);
-		else this.ctx.translate(x, y);
+	translate(origin) {
+		this.ctx.translate(origin.x, origin.y);
 	}
 
+	/**
+	 * Rotates canvas by specified angle around current origin
+	 * @param {number} angle Amount of radians to rotate
+	 */
 	rotate(angle) {
 		this.ctx.rotate(angle);
 	}
 
+	/**
+	 * Saves current canvas state
+	 */
 	save() {
 		this.ctx.save();
 	}
 
+	/**
+	 * Restores previously saved canvas state
+	 */
 	restore() {
 		this.ctx.restore();
 	}
