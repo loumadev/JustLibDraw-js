@@ -7,31 +7,18 @@
  * Date: 2019-06-16T13:01Z
  */
 
-
 /**
- * @typedef {import('./JustLib.js').JL} JL
- */
-
-/**
- * @typedef {import('./JustLib.js').Vector} Vector
- */
-
-/**
- * @typedef {import('./JustLib.js').Matrix} Matrix
- */
-
-/**
- * @typedef {import('./JustLib.js').Dimensions} Dimensions
- */
-
-/**
- * @typedef {import('./JustLib.js').Color} Color
+ * @typedef {import('../justlib/JustLib.js').JL} JL
+ * @typedef {import('../justlib/JustLib.js').Vector} Vector
+ * @typedef {import('../justlib/JustLib.js').Matrix} Matrix
+ * @typedef {import('../justlib/JustLib.js').Dimensions} Dimensions
+ * @typedef {import('../justlib/JustLib.js').Color} Color
  */
 
 
 var /** @deprecated */canvas, /** @deprecated */ctx,
-	/** @deprecated */Height, /** @deprecated */Width,
-	/** @deprecated */CENTER, FPS = 60,
+ /** @deprecated */Height, /** @deprecated */Width,
+ /** @deprecated */CENTER, FPS = 60,
 	Frames = 0,
 	fpsTime = 0,
 	FRAMERATE = 60,
@@ -46,8 +33,8 @@ const CONTEXT_2D = CanvasRenderingContext2D;
 const CONTEXT_WEBGL = WebGLRenderingContext;
 
 /**
- * @deprecated Use `JL.OrthographicCamera.prototype.projectionMatrix` instead
- * */
+* @deprecated Use `JL.OrthographicCamera.prototype.projectionMatrix` instead
+*/
 const PROJECTION_ORTHOGRAPHIC = new Matrix([
 	[1, 0, 0],
 	[0, 1, 0]
@@ -211,10 +198,9 @@ JL.Renderer2D = class extends JL.Renderer {
 	 * @prop {string} [font="sans-serif"] Font family
 	 * @prop {number | string} [weight=400] Font weight
 	 * @prop {Color | string} [color="black"] Font color (alias of `fillColor`)
-	 * @prop {string} [center=false] Sets `align` to "center" and `baseline` to "middle" (shorthand for `align` and `baseline`)
+	 * @prop {boolean} [center=false] Sets `align` to "center" and `baseline` to "middle" (shorthand for `align` and `baseline`)
 	 * @prop {"left" | "right" | "center" | "start" | "end"} [align="start"] Text alignment
 	 * @prop {"top" | "bottom" | "middle" | "alphabetic" | "hanging" | "ideographic"} [baseline="top"] Text baseline
-	 * 
 	 */
 
 	// eslint-disable-next-line valid-jsdoc
@@ -294,7 +280,7 @@ JL.Renderer2D = class extends JL.Renderer {
 			miterLimit = 10
 		} = options;
 
-		const frac = strokeWidth % 2 ? 0.5 : 0;
+		const frac = 0;//strokeWidth % 2 ? 0.5 : 0;
 
 		this.ctx.beginPath();
 
@@ -357,7 +343,7 @@ JL.Renderer2D = class extends JL.Renderer {
 		}
 
 		if(strokeWidth) {
-			const frac = strokeWidth % 2 ? 0.5 : 0;
+			const frac = 0;//strokeWidth % 2 ? 0.5 : 0;
 
 			this.ctx.strokeStyle = strokeColor;
 			this.ctx.lineWidth = strokeWidth;
@@ -438,6 +424,22 @@ JL.Renderer2D = class extends JL.Renderer {
 		}
 
 		this.ctx.closePath();
+	}
+
+
+	/**
+	 * @typedef {EllipseOptions} CircleOptions
+	 */
+
+	// eslint-disable-next-line valid-jsdoc
+	/**
+	 * Draws an circle with the given position and radius
+	 * @param {Vector} position Center of the circle
+	 * @param {number} radius Radius of the circle
+	 * @param {FillOptions & StrokeOptions & EllipseOptions} [options] Additional options
+	 */
+	drawCircle(position, radius, options) {
+		this.drawEllipse(position, radius, radius, options);
 	}
 
 
@@ -578,16 +580,16 @@ JL.Renderer3D = class extends JL.Renderer {
 };
 
 /**
- * Creates HTML canvas. If first parameter is HTML DOM Element, canvas will be created in that element and set to fullscreen.
- * @deprecated Use `new JL.Renderer2D(...)` or `new JL.Renderer3D(...)` instead
- * @param {any} width Width of canvas or HTML DOM element
- * @param {number} height Height of canvas
- * @param {string} renderer 2d/webgl/webgl2
- * @param {Object} options HTML ELement where canvas will create
- * @param {HTMLElement} elm
- * @param {string} name
- * @returns {HTMLCanvasElement}
- */
+* Creates HTML canvas. If first parameter is HTML DOM Element, canvas will be created in that element and set to fullscreen.
+* @deprecated Use `new JL.Renderer2D(...)` or `new JL.Renderer3D(...)` instead
+* @param {any} width Width of canvas or HTML DOM element
+* @param {number} height Height of canvas
+* @param {string} renderer 2d/webgl/webgl2
+* @param {Object} options HTML ELement where canvas will create
+* @param {HTMLElement} elm
+* @param {string} name
+* @returns {HTMLCanvasElement}
+*/
 function createCanvas(width = 800, height = 600, renderer = "2d", options = {}, elm = get("body"), name = CANVASES.length) {
 	var node = document.createElement("canvas");
 	node.renderer = renderer;
@@ -617,19 +619,19 @@ function createCanvas(width = 800, height = 600, renderer = "2d", options = {}, 
 }
 
 /**
- * Returns a Vector containing center of the specified canvas
- * @deprecated Use `JL.Renderer.prototype.center` instead
- * @param {HTMLCanvasElement} _canvas
- * @return {Vector} 
- */
+* Returns a Vector containing center of the specified canvas
+* @deprecated Use `JL.Renderer.prototype.center` instead
+* @param {HTMLCanvasElement} _canvas
+* @return {Vector} 
+*/
 function getCenter(_canvas) {
 	return new Vector(_canvas.width / 2, _canvas.height / 2);
 }
 
 /**
- * Set size of canvas to size of window.
- * @param {HTMLCanvasElement} _canvas
- */
+* Set size of canvas to size of window.
+* @param {HTMLCanvasElement} _canvas
+*/
 function Fullscreen(_canvas = canvas) {
 	_checkCanvas();
 	_canvas.width = window.innerWidth;
@@ -644,12 +646,12 @@ function Fullscreen(_canvas = canvas) {
 }
 
 /**
- * Resizes canvas to specific dimensions.
- * @deprecated Use `JL.Renderer.prototype.resize(...)` instead
- * @param {number} width
- * @param {number} height
- * @param {HTMLCanvasElement} _canvas
- */
+* Resizes canvas to specific dimensions.
+* @deprecated Use `JL.Renderer.prototype.resize(...)` instead
+* @param {number} width
+* @param {number} height
+* @param {HTMLCanvasElement} _canvas
+*/
 function Resize(width, height, _canvas = canvas) {
 	_checkCanvas();
 	_canvas.width = width;
@@ -662,14 +664,14 @@ function Resize(width, height, _canvas = canvas) {
 }
 
 /**
- * Clears certain area or whole canvas.
- * @deprecated Use `JL.Renderer2D.prototype.clear(...)` instead
- * @param {number} x X-position of start
- * @param {number} y Y-position of start
- * @param {number} width Width of area
- * @param {number} height Height of area
- * @param {HTMLCanvasElement} _canvas
- */
+* Clears certain area or whole canvas.
+* @deprecated Use `JL.Renderer2D.prototype.clear(...)` instead
+* @param {number} x X-position of start
+* @param {number} y Y-position of start
+* @param {number} width Width of area
+* @param {number} height Height of area
+* @param {HTMLCanvasElement} _canvas
+*/
 function Clear(x = 0, y = 0, width = canvas.width, height = canvas.height, _canvas = canvas) {
 	_checkCanvas();
 	if(typeof x === "object") _canvas = x;
@@ -679,12 +681,12 @@ function Clear(x = 0, y = 0, width = canvas.width, height = canvas.height, _canv
 }
 
 /**
- * Translate origin of the canvas.
- * @deprecated Use `JL.Renderer2D.prototype.translate(...)` instead
- * @param {number} x X-position or Vector position
- * @param {number} y Y-position
- * @param {HTMLCanvasElement} _canvas
- */
+* Translate origin of the canvas.
+* @deprecated Use `JL.Renderer2D.prototype.translate(...)` instead
+* @param {number} x X-position or Vector position
+* @param {number} y Y-position
+* @param {HTMLCanvasElement} _canvas
+*/
 function Translate(x = 0, y = 0, _canvas = canvas) {
 	_checkCanvas();
 	var _ctx = _canvas.getContext(_canvas.renderer);
@@ -693,11 +695,11 @@ function Translate(x = 0, y = 0, _canvas = canvas) {
 }
 
 /**
- * Rotates canvas origin by angle.
- * @deprecated Use `JL.Renderer2D.prototype.rotate(...)` instead
- * @param {number} angle angle in radians
- * @param {HTMLCanvasElement} _canvas
- */
+* Rotates canvas origin by angle.
+* @deprecated Use `JL.Renderer2D.prototype.rotate(...)` instead
+* @param {number} angle angle in radians
+* @param {HTMLCanvasElement} _canvas
+*/
 function Rotate(angle, _canvas = canvas) {
 	_checkCanvas();
 	var _ctx = _canvas.getContext(_canvas.renderer);
@@ -705,10 +707,10 @@ function Rotate(angle, _canvas = canvas) {
 }
 
 /**
- * Saves canvas original rotation, position...
- * @deprecated Use `JL.Renderer2D.prototype.save(...)` instead
- * @param {HTMLCanvasElement} _canvas
- */
+* Saves canvas original rotation, position...
+* @deprecated Use `JL.Renderer2D.prototype.save(...)` instead
+* @param {HTMLCanvasElement} _canvas
+*/
 function Push(_canvas = canvas) {
 	_checkCanvas();
 	var _ctx = _canvas.getContext(_canvas.renderer);
@@ -716,10 +718,10 @@ function Push(_canvas = canvas) {
 }
 
 /**
- * Restores canvas original rotation, position...
- * @deprecated Use `JL.Renderer2D.prototype.restore(...)` instead
- * @param {HTMLCanvasElement} _canvas
- */
+* Restores canvas original rotation, position...
+* @deprecated Use `JL.Renderer2D.prototype.restore(...)` instead
+* @param {HTMLCanvasElement} _canvas
+*/
 function Pop(_canvas = canvas) {
 	_checkCanvas();
 	var _ctx = _canvas.getContext(_canvas.renderer);
@@ -727,14 +729,14 @@ function Pop(_canvas = canvas) {
 }
 
 /**
- * Sets background.
- * @deprecated Use `JL.Renderer.prototype.setBackground(...)` instead
- * @param {number} r
- * @param {number} [g=r]
- * @param {number} [b=r]
- * @param {number} [a=1]
- * @param {HTMLCanvasElement} _canvas
- */
+* Sets background.
+* @deprecated Use `JL.Renderer.prototype.setBackground(...)` instead
+* @param {number} r
+* @param {number} [g=r]
+* @param {number} [b=r]
+* @param {number} [a=1]
+* @param {HTMLCanvasElement} _canvas
+*/
 function Background(r, g = r, b = r, a = 1, _canvas = canvas) {
 	_checkCanvas();
 	var _ctx = _canvas.getContext(_canvas.renderer);
@@ -749,9 +751,9 @@ function Background(r, g = r, b = r, a = 1, _canvas = canvas) {
 
 
 /**
- * Sets background.
- * @param {number} fps
- */
+* Sets background.
+* @param {number} fps
+*/
 function Framerate(fps) {
 	if(fps <= 0) throw new Error("[JustLibDraw] Framerate cannot be set to value equal or less than 0");
 	FRAMERATE = fps;
@@ -759,15 +761,15 @@ function Framerate(fps) {
 
 
 /**
- * Adds ease-out transition between two values.
- * @param {number} from Starting number.
- * @param {number} to Final number.
- * @param {number} percent How many percent of difference starting and final number should value change.
- * @param {boolean} [fps=true]
- * @param {Function} finish
- * @param {number} [value=0.5]
- * @returns {number}
- */
+* Adds ease-out transition between two values.
+* @param {number} from Starting number.
+* @param {number} to Final number.
+* @param {number} percent How many percent of difference starting and final number should value change.
+* @param {boolean} [fps=true]
+* @param {Function} finish
+* @param {number} [value=0.5]
+* @returns {number}
+*/
 function Lerp(from, to, percent, fps = true, finish, value = .5) {
 	if(abs(to - from) < value && finish) {
 		finish();
@@ -777,12 +779,12 @@ function Lerp(from, to, percent, fps = true, finish, value = .5) {
 }
 
 /**
- * Adds ease-out transition between two colors.
- * @param {Color} from Starting color.
- * @param {Color} to Final color.
- * @param {number} percent How many percent of difference starting and final number should value change.
- * @returns {Color}
- */
+* Adds ease-out transition between two colors.
+* @param {Color} from Starting color.
+* @param {Color} to Final color.
+* @param {number} percent How many percent of difference starting and final number should value change.
+* @returns {Color}
+*/
 function LerpColor(from, to, percent) {
 	return new Color(
 		percent * (to.r - from.r) + from.r,
@@ -793,11 +795,11 @@ function LerpColor(from, to, percent) {
 }
 
 /**
- * Sets glow. After this, all drawn elements will have glow, need to call setGlow() to prevent that.
- * @param {Color} color Color of blur.
- * @param {number} blur Pixel radius of blur.
- * @param {HTMLCanvasElement} _canvas
- */
+* Sets glow. After this, all drawn elements will have glow, need to call setGlow() to prevent that.
+* @param {Color} color Color of blur.
+* @param {number} blur Pixel radius of blur.
+* @param {HTMLCanvasElement} _canvas
+*/
 function setGlow(color, blur, _canvas = canvas) {
 	_checkCanvas();
 	var _ctx = _canvas.getContext(_canvas.renderer);
@@ -806,9 +808,9 @@ function setGlow(color, blur, _canvas = canvas) {
 }
 
 /**
- * Used to restore glow and prevent drawing glow on all elements.
- * @param {HTMLCanvasElement} _canvas
- */
+* Used to restore glow and prevent drawing glow on all elements.
+* @param {HTMLCanvasElement} _canvas
+*/
 function restoreGlow(_canvas = canvas) {
 	_checkCanvas();
 	var _ctx = _canvas.getContext(_canvas.renderer);
@@ -817,8 +819,8 @@ function restoreGlow(_canvas = canvas) {
 }
 
 /**
- * Function which runs only once.
- */
+* Function which runs only once.
+*/
 window.addEventListener("DOMContentLoaded", () => {
 	if(typeof Setup !== "undefined") {
 		if(Setup instanceof Function) {
@@ -852,8 +854,8 @@ function _checkCanvas() {
 
 // eslint-disable-next-line valid-jsdoc
 /**
- * @deprecated Use `JL.Renderer2D.prototype.drawText(...)` instead
- */
+* @deprecated Use `JL.Renderer2D.prototype.drawText(...)` instead
+*/
 function Write(vector, text, size = 18, color = "white", font = "monospace", style = "normal", center = false, _canvas = canvas) {
 	_checkCanvas();
 	var _ctx = _canvas.getContext(_canvas.renderer);
@@ -875,8 +877,8 @@ function Write(vector, text, size = 18, color = "white", font = "monospace", sty
 
 // eslint-disable-next-line valid-jsdoc
 /**
- * @deprecated Use `JL.Renderer2D.prototype.drawLine(...)` instead
- */
+* @deprecated Use `JL.Renderer2D.prototype.drawLine(...)` instead
+*/
 function Line(vector1, vector2, width = 1, color = "white", _canvas = canvas) {
 	_checkCanvas();
 	var _ctx = _canvas.getContext(_canvas.renderer);
@@ -892,8 +894,8 @@ function Line(vector1, vector2, width = 1, color = "white", _canvas = canvas) {
 
 // eslint-disable-next-line valid-jsdoc
 /**
- * @deprecated Use `JL.Renderer2D.prototype.drawEllipse(...)` instead
- */
+* @deprecated Use `JL.Renderer2D.prototype.drawEllipse(...)` instead
+*/
 function Point(vector, radius = 1, color1 = "white", width = 0, color2 = "red", _canvas = canvas) {
 	_checkCanvas();
 	var _ctx = _canvas.getContext(_canvas.renderer);
@@ -912,8 +914,8 @@ function Point(vector, radius = 1, color1 = "white", width = 0, color2 = "red", 
 
 // eslint-disable-next-line valid-jsdoc
 /**
- * @deprecated Use `JL.Renderer2D.prototype.drawRect(...)` instead
- */
+* @deprecated Use `JL.Renderer2D.prototype.drawRect(...)` instead
+*/
 function Rectangle(vector, width, height, color1 = "white", width2 = 0, color2 = "red", _canvas = canvas) {
 	_checkCanvas();
 	var _ctx = _canvas.getContext(_canvas.renderer);
@@ -957,44 +959,44 @@ function Triangle(vector1, vector2, vector3, color1 = "white", width = 0, color2
 /* ====== WebGL ====== */
 
 /**
- * Signed 8-bit integer, with values in [-128, 127]
- */
+* Signed 8-bit integer, with values in [-128, 127]
+*/
 JL.INT8 = WebGLRenderingContext.BYTE;
 
 /**
- * Signed 16-bit integer, with values in [-32768, 32767]
- */
+* Signed 16-bit integer, with values in [-32768, 32767]
+*/
 JL.INT16 = WebGLRenderingContext.SHORT;
 
 /**
- * Signed 32-bit integer, with values in [-2147483648 to 2147483647]
- */
+* Signed 32-bit integer, with values in [-2147483648 to 2147483647]
+*/
 JL.INT32 = WebGLRenderingContext.INT;
 
 /**
- * Unsigned 8-bit integer, with values in [0, 255]
- */
+* Unsigned 8-bit integer, with values in [0, 255]
+*/
 JL.UINT8 = WebGLRenderingContext.UNSIGNED_BYTE;
 
 /**
- * Unsigned 16-bit integer, with values in [0, 65535]
- */
+* Unsigned 16-bit integer, with values in [0, 65535]
+*/
 JL.UINT16 = WebGLRenderingContext.UNSIGNED_SHORT;
 
 /**
- * Unsigned 32-bit integer, with values in [0, 4294967295]
- */
+* Unsigned 32-bit integer, with values in [0, 4294967295]
+*/
 JL.UINT32 = WebGLRenderingContext.UNSIGNED_INT;
 
 /**
- * 32-bit IEEE floating point number, with values in [-3.4E+38, +3.4E+38]
- */
+* 32-bit IEEE floating point number, with values in [-3.4E+38, +3.4E+38]
+*/
 JL.FLOAT32 = WebGLRenderingContext.FLOAT;
 
 
 /**
- * 
- */
+* 
+*/
 JL.NEAREST = WebGLRenderingContext.NEAREST;
 JL.LINEAR = WebGLRenderingContext.LINEAR;
 
@@ -1004,20 +1006,20 @@ JL.CLAMP_TO_EDGE = WebGLRenderingContext.CLAMP_TO_EDGE;
 
 
 /**
- * @typedef {JL.INT8 | JL.INT16 | JL.INT32 | JL.UINT8 | JL.UINT16 | JL.UINT32 | JL.FLOAT32} JL_TYPE
- */
+* @typedef {JL.INT8 | JL.INT16 | JL.INT32 | JL.UINT8 | JL.UINT16 | JL.UINT32 | JL.FLOAT32} JL_TYPE
+*/
 
 /**
- * @typedef {JL.UINT8 | JL.UINT16 | JL.UINT32} JL_TYPE_UNSIGNED
- */
+* @typedef {JL.UINT8 | JL.UINT16 | JL.UINT32} JL_TYPE_UNSIGNED
+*/
 
 
 /**
- * 
- * @param {JL_TYPE} type 
- * @param {boolean} [clamped=false]
- * @returns {Int8Array | Int16Array | Int32Array | Uint8Array | Uint16Array | Uint32Array | Float32Array}
- */
+* 
+* @param {JL_TYPE} type 
+* @param {boolean} [clamped=false]
+* @returns {Int8Array | Int16Array | Int32Array | Uint8Array | Uint16Array | Uint32Array | Float32Array}
+*/
 JL._arrayFromType = function(type, clamped = false) {
 	switch(type) {
 		case JL.INT8: return Int8Array;
@@ -1032,10 +1034,10 @@ JL._arrayFromType = function(type, clamped = false) {
 };
 
 /**
- * 
- * @param {JL_TYPE} type 
- * @returns {number} Size of data type in bytes
- */
+* 
+* @param {JL_TYPE} type 
+* @returns {number} Size of data type in bytes
+*/
 JL._sizeOf = function(type) {
 	switch(type) {
 		case JL.INT8: return 1;
@@ -1050,8 +1052,8 @@ JL._sizeOf = function(type) {
 };
 
 /**
- * 4x4 matrix with `1`s on the main diagonal and `0`s elsewhere
- */
+* 4x4 matrix with `1`s on the main diagonal and `0`s elsewhere
+*/
 JL.IdentityMatrix = new Matrix([
 	[1, 0, 0, 0],
 	[0, 1, 0, 0],
@@ -1609,11 +1611,7 @@ JL.WebGLTexture = class {
 
 
 JL.Object3D = class {
-	/**
-	 * Creates new uniform
-	 * @param {JL.WebGLShader} program Shader program
-	 */
-	constructor(program) {
+	constructor() {
 		this.position = new Vector(0, 0, 0);
 		this.rotation = new Vector(0, 0, 0);
 		this.scale = new Vector(1, 1, 1);
@@ -1824,12 +1822,12 @@ JL.OrthographicCamera = class extends JL.Camera {
 
 
 /**
- * Loads shader
- * @param {WebGLRenderingContext} gl WebGL Rendering Context
- * @param {number} type Vertex or Fragment Shader
- * @param {string} source Source code
- * @returns {WebGLShader} Loaded Shader
- */
+* Loads shader
+* @param {WebGLRenderingContext} gl WebGL Rendering Context
+* @param {number} type Vertex or Fragment Shader
+* @param {string} source Source code
+* @returns {WebGLShader} Loaded Shader
+*/
 function loadShader(gl, type, source) {
 	const shader = gl.createShader(type);
 
@@ -1858,12 +1856,12 @@ function loadShader(gl, type, source) {
 
 
 /**
- * Initialize and links shader program
- * @param {WebGLRenderingContext} gl WebGL Rendering Context
- * @param {string} vsSource Vertex or Fragment Shader
- * @param {string} fsSource Source code
- * @returns {WebGLProgram} Shader Program
- */
+* Initialize and links shader program
+* @param {WebGLRenderingContext} gl WebGL Rendering Context
+* @param {string} vsSource Vertex or Fragment Shader
+* @param {string} fsSource Source code
+* @returns {WebGLProgram} Shader Program
+*/
 function createProgram(gl, vsSource, fsSource) {
 	const vertexShader = loadShader(gl, gl.VERTEX_SHADER, vsSource);
 	const fragmentShader = loadShader(gl, gl.FRAGMENT_SHADER, fsSource);
@@ -1884,13 +1882,13 @@ function createProgram(gl, vsSource, fsSource) {
 }
 
 /**
- * Initialize buffer
- * @deprecated Use `new JL.WebGLBuffer(...)` instead
- * @param {WebGLRenderingContext} gl WebGL Rendering Context
- * @param {Array} data Array of data
- * @param {number} [usage=CONTEXT_WEBGL.STATIC_DRAW] Data usage
- * @returns {WebGLBuffer} WebGL Buffer
- */
+* Initialize buffer
+* @deprecated Use `new JL.WebGLBuffer(...)` instead
+* @param {WebGLRenderingContext} gl WebGL Rendering Context
+* @param {Array} data Array of data
+* @param {number} [usage=CONTEXT_WEBGL.STATIC_DRAW] Data usage
+* @returns {WebGLBuffer} WebGL Buffer
+*/
 function createBuffer(gl, data, usage = gl.STATIC_DRAW) {
 	//Create new buffer
 	const positionBuffer = gl.createBuffer();
@@ -1905,12 +1903,12 @@ function createBuffer(gl, data, usage = gl.STATIC_DRAW) {
 }
 
 /**
- * Initialize buffer
- * @deprecated Use `JL.WebGLBuffer#update(...)` instead
- * @param {WebGLRenderingContext} gl WebGL Rendering Context
- * @param {WebGLBuffer} buffer WebGL Buffer
- * @param {Array} data Data array
- */
+* Initialize buffer
+* @deprecated Use `JL.WebGLBuffer#update(...)` instead
+* @param {WebGLRenderingContext} gl WebGL Rendering Context
+* @param {WebGLBuffer} buffer WebGL Buffer
+* @param {Array} data Data array
+*/
 function updateBuffer(gl, buffer, data) {
 	//Select buffer as the one to apply buffer operations to from here out
 	gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
@@ -1920,24 +1918,24 @@ function updateBuffer(gl, buffer, data) {
 }
 
 /**
- * Initialize buffer
- * @deprecated Use `updateBuffer(...)` instead
- * @param {WebGLRenderingContext} gl WebGL Rendering Context
- * @param {WebGLBuffer} buffer WebGL Buffer
- * @param {Array} data Array of data
- */
+* Initialize buffer
+* @deprecated Use `updateBuffer(...)` instead
+* @param {WebGLRenderingContext} gl WebGL Rendering Context
+* @param {WebGLBuffer} buffer WebGL Buffer
+* @param {Array} data Array of data
+*/
 var changeBuffer = updateBuffer;
 
 
 /**
- * Update uniform content
- * @deprecated Use `JL.WebGLUniform#update(...)` instead
- * @param {WebGLRenderingContext} gl WebGL Rendering Context
- * @param {WebGLProgram} program Shader Program
- * @param {WebGLUniformLocation} location Uniform location
- * @param {"1f"|"1fv"|"1i"|"1iv"|"2f"|"2fv"|"2i"|"2iv"|"3f"|"3fv"|"3i"|"3iv"|"4f"|"4fv"|"4i"|"4iv"|"Matrix2fv"|"Matrix3fv"|"Matrix4fv"} datatype uniform data type
- * @param {Array} data Data array
- */
+* Update uniform content
+* @deprecated Use `JL.WebGLUniform#update(...)` instead
+* @param {WebGLRenderingContext} gl WebGL Rendering Context
+* @param {WebGLProgram} program Shader Program
+* @param {WebGLUniformLocation} location Uniform location
+* @param {"1f"|"1fv"|"1i"|"1iv"|"2f"|"2fv"|"2i"|"2iv"|"3f"|"3fv"|"3i"|"3iv"|"4f"|"4fv"|"4i"|"4iv"|"Matrix2fv"|"Matrix3fv"|"Matrix4fv"} datatype uniform data type
+* @param {Array} data Data array
+*/
 function updateUniform(gl, program, location, datatype, data) {
 	//if(data.length % 2) throw new Error("[JustLibDraw] Invalid data pairs! (UniformLocation, DataToBeSet)");
 	const uniformMethod = "uniform" + datatype;
@@ -1954,28 +1952,28 @@ function updateUniform(gl, program, location, datatype, data) {
 }
 
 /**
- * Initialize buffer
- * @deprecated Use `updateBuffer(...)` instead
- * @param {WebGLRenderingContext} gl WebGL Rendering Context
- * @param {WebGLBuffer} buffer WebGL Buffer
- * @param {Array} data Array of data
- */
+* Initialize buffer
+* @deprecated Use `updateBuffer(...)` instead
+* @param {WebGLRenderingContext} gl WebGL Rendering Context
+* @param {WebGLBuffer} buffer WebGL Buffer
+* @param {Array} data Array of data
+*/
 var changeUniform = updateUniform;
 
 /**
- * Links buffer with attribute in WebGL Shader Program
- * @deprecated Use `JL.WebGLAttribute#use()` instead
- * @param {WebGLRenderingContext} gl WebGL Rendering Context
- * @param {WebGLProgram} program Shader Program
- * @param {string} attribute Data usage
- * @param {WebGLBuffer} buffer WebGL Buffer with data
- * @param {number} [size=3] Size per one data record (size of the vector)
- * @param {number} [type=CONTEXT_WEBGL.FLOAT] Type of data
- * @returns {number} Location of attribute in program
- */
+* Links buffer with attribute in WebGL Shader Program
+* @deprecated Use `JL.WebGLAttribute#use()` instead
+* @param {WebGLRenderingContext} gl WebGL Rendering Context
+* @param {WebGLProgram} program Shader Program
+* @param {string} attribute Data usage
+* @param {WebGLBuffer} buffer WebGL Buffer with data
+* @param {number} [size=3] Size per one data record (size of the vector)
+* @param {number} [type=CONTEXT_WEBGL.FLOAT] Type of data
+* @returns {number} Location of attribute in program
+*/
 function manageAttribute(gl, program, attribute, buffer, size = 3, type = gl.FLOAT) {
-	//Select program
-	/* if(!gl.isProgram(program))  */gl.useProgram(program);
+ //Select program
+ /* if(!gl.isProgram(program))  */gl.useProgram(program);
 
 	//Get location
 	const location = gl.getAttribLocation(program, attribute);
@@ -1987,12 +1985,12 @@ function manageAttribute(gl, program, attribute, buffer, size = 3, type = gl.FLO
 }
 
 /**
- * Creates new texture from image or url of image
- * @deprecated Use `new JL.WebGLTexture(...)` instead
- * @param {WebGLRenderingContext} gl WebGL Rendering Context
- * @param {Image|HTMLImageElement|HTMLVideoElement|String} [content] URL of the image, or image or video object
- * @returns {WebGLTexture} Created texture
- */
+* Creates new texture from image or url of image
+* @deprecated Use `new JL.WebGLTexture(...)` instead
+* @param {WebGLRenderingContext} gl WebGL Rendering Context
+* @param {Image|HTMLImageElement|HTMLVideoElement|String} [content] URL of the image, or image or video object
+* @returns {WebGLTexture} Created texture
+*/
 function createTexture(gl, content = null) {
 	//Create new texture
 	const texture = gl.createTexture();
@@ -2022,12 +2020,12 @@ function createTexture(gl, content = null) {
 }
 
 /**
- * Update content of the texture
- * @deprecated Use `JL.WebGLTexture#update(...)` instead
- * @param {WebGLRenderingContext} gl
- * @param {WebGLTexture} texture
- * @param {Image|HTMLImageElement|HTMLVideoElement|string} content
- */
+* Update content of the texture
+* @deprecated Use `JL.WebGLTexture#update(...)` instead
+* @param {WebGLRenderingContext} gl
+* @param {WebGLTexture} texture
+* @param {Image|HTMLImageElement|HTMLVideoElement|string} content
+*/
 function updateTexture(gl, texture, content) {
 	//Bind image with texture
 	const bindTexture = image => {
@@ -2047,14 +2045,14 @@ function updateTexture(gl, texture, content) {
 /* Matrix Manipulation */
 
 /**
- * Constructs Perspective Projection matrix
- * @deprecated Use `JL.PerspectiveCamera.prototype.projectionMatrix` instead
- * @param {number} fov WebGL Rendering Context
- * @param {number} aspect Vertex or Fragment Shader
- * @param {number} zNear Source code
- * @param {number} zFar Source code
- * @returns {Matrix} Perspective Projection matrix
- */
+* Constructs Perspective Projection matrix
+* @deprecated Use `JL.PerspectiveCamera.prototype.projectionMatrix` instead
+* @param {number} fov WebGL Rendering Context
+* @param {number} aspect Vertex or Fragment Shader
+* @param {number} zNear Source code
+* @param {number} zFar Source code
+* @returns {Matrix} Perspective Projection matrix
+*/
 Matrix.perspective = function(fov, aspect, zNear, zFar) {
 	return new Matrix([
 		[1 / tan(fov / 2) / aspect, 0, 0, 0],
@@ -2065,10 +2063,10 @@ Matrix.perspective = function(fov, aspect, zNear, zFar) {
 };
 
 /**
- * Translates coordinations of Matrix
- * @param {number} args Vector properties
- * @returns {Matrix}
- */
+* Translates coordinations of Matrix
+* @param {number[]} args Vector properties
+* @returns {Matrix}
+*/
 Matrix.prototype.translate = function(...args) {
 	var m = this.copy();
 	/*for(var i = 0; i < this.cols; i++) {
@@ -2081,9 +2079,9 @@ Matrix.prototype.translate = function(...args) {
 };
 
 /**
- * Scales coordinations of Matrix
- * @param {number} args Scale properties
- */
+* Scales coordinations of Matrix
+* @param {number[]} args Scale properties
+*/
 Matrix.prototype.scale = function(...args) {
 	for(var i = 0; i < this.rows; i++) {
 		for(var j = 0; j < this.cols; j++) {
