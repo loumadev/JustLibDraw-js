@@ -1,3 +1,4 @@
+//@ts-check
 
 /*!
  * JustLibDraw JavaScript Library v0.0.1
@@ -7,12 +8,13 @@
  * Date: 2019-06-16T13:01Z
  */
 
+
+if(window["__ts-check__"]) {
+	const {Vector, Matrix, Dimensions, Color} = require("../justlib/JustLib.js");
+}
+
 /**
  * @typedef {import('../justlib/JustLib.js').JL} JL
- * @typedef {import('../justlib/JustLib.js').Vector} Vector
- * @typedef {import('../justlib/JustLib.js').Matrix} Matrix
- * @typedef {import('../justlib/JustLib.js').Dimensions} Dimensions
- * @typedef {import('../justlib/JustLib.js').Color} Color
  */
 
 
@@ -232,12 +234,12 @@ JL.Renderer2D = class extends JL.Renderer {
 		this.ctx.beginPath();
 
 		this.ctx.font = `${weight} ${size}px ${font}`;
-		this.ctx.fillStyle = fillColor;
+		this.ctx.fillStyle = fillColor + "";
 		this.ctx.textAlign = align;
 		this.ctx.textBaseline = baseline;
 
 		if(strokeWidth) {
-			this.ctx.strokeStyle = strokeColor;
+			this.ctx.strokeStyle = strokeColor + "";
 			this.ctx.lineWidth = strokeWidth;
 			this.ctx.lineJoin = strokeJoin;
 			this.ctx.miterLimit = miterLimit;
@@ -285,7 +287,7 @@ JL.Renderer2D = class extends JL.Renderer {
 		this.ctx.beginPath();
 
 		this.ctx.lineWidth = strokeWidth;
-		this.ctx.strokeStyle = strokeColor;
+		this.ctx.strokeStyle = strokeColor + "";
 		this.ctx.lineCap = cap;
 		this.ctx.lineJoin = strokeJoin;
 		this.ctx.miterLimit = miterLimit;
@@ -332,20 +334,22 @@ JL.Renderer2D = class extends JL.Renderer {
 			miterLimit = 10
 		} = options;
 
-		const rectWidth = size.x - position.x || size.w || 0;
-		const rectHeight = size.y - position.y || size.h || 0;
+		const isVector = size instanceof Vector;
+
+		const rectWidth = (isVector ? size.x - position.x : size.w) || 0;
+		const rectHeight = (isVector ? size.y - position.y : size.h) || 0;
 
 		this.ctx.beginPath();
 
 		if(fillColor) {
-			this.ctx.fillStyle = fillColor;
+			this.ctx.fillStyle = fillColor + "";
 			this.ctx.fillRect(position.x, position.y, rectWidth, rectHeight);
 		}
 
 		if(strokeWidth) {
 			const frac = 0;//strokeWidth % 2 ? 0.5 : 0;
 
-			this.ctx.strokeStyle = strokeColor;
+			this.ctx.strokeStyle = strokeColor + "";
 			this.ctx.lineWidth = strokeWidth;
 			this.ctx.lineJoin = strokeJoin;
 			this.ctx.miterLimit = miterLimit;
@@ -398,7 +402,7 @@ JL.Renderer2D = class extends JL.Renderer {
 		this.ctx.beginPath();
 
 		if(fillColor) {
-			this.ctx.fillStyle = fillColor;
+			this.ctx.fillStyle = fillColor + "";
 
 			if(radiusX === radiusY) {
 				this.ctx.arc(position.x, position.y, radiusX, start, end, anticlockwise);
@@ -410,7 +414,7 @@ JL.Renderer2D = class extends JL.Renderer {
 		}
 
 		if(strokeWidth) {
-			this.ctx.strokeStyle = strokeColor;
+			this.ctx.strokeStyle = strokeColor + "";
 			this.ctx.lineWidth = strokeWidth;
 			this.ctx.setLineDash(strokePattern);
 
@@ -446,13 +450,13 @@ JL.Renderer2D = class extends JL.Renderer {
 	/**
 	 * @typedef {Object} ImageOptions
 	 * @prop {Vector} [srcPosition] Position of the image in the source image (default: 0, 0)
-	 * @prop {Vector} [srcSize] Size of the image in the source image (default: source image size)
-	 * @prop {Vector} [size] Size of the image in the canvas (default: source image size)
+	 * @prop {Vector | Dimensions} [srcSize] Size of the image in the source image (default: source image size)
+	 * @prop {Vector | Dimensions} [size] Size of the image in the canvas (default: source image size)
 	 */
 
 	/**
 	 * Draws an image from the given source image at the given position
-	 * @param {Image | HTMLImageElement | HTMLVideoElement | HTMLCanvasElement} image
+	 * @param {HTMLImageElement | HTMLVideoElement | HTMLCanvasElement} image
 	 * @param {Vector} position Position of the image in the canvas
 	 * @param {ImageOptions} [options] Additional options
 	 */
@@ -466,10 +470,14 @@ JL.Renderer2D = class extends JL.Renderer {
 		const sx = srcPosition && srcPosition.x || 0;
 		const sy = srcPosition && srcPosition.y || 0;
 
+		// @ts-ignore
 		const sw = srcSize && (srcSize.x - sx || srcSize.w) || image.naturalWidth || image.videoHeight || image.width;
+		// @ts-ignore
 		const sh = srcSize && (srcSize.y - sy || srcSize.h) || image.naturalHeight || image.videoHeight || image.height;
 
+		// @ts-ignore
 		const dw = size && (size.x - sx || size.w) || sw;
+		// @ts-ignore
 		const dh = size && (size.y - sy || size.h) || sh;
 
 		this.ctx.drawImage(
@@ -529,7 +537,7 @@ JL.Renderer2D = class extends JL.Renderer {
 	 * @param {number} [a=1] alpha channel (0 - 1)
 	 */
 	setBackground(r = 0, g = 0, b = 0, a = 1) {
-		this.ctx.fillStyle = (r instanceof Color ? r : new Color(r, g, b, a)).toString();
+		this.ctx.fillStyle = (r instanceof Color ? r : new Color(r, g, b, a)) + "";
 		this.ctx.fillRect(0, 0, this.width, this.height);
 	}
 };
@@ -542,24 +550,19 @@ JL.Renderer3D = class extends JL.Renderer {
 	constructor(options) {
 		super(options);
 
-		/**
-		 * @type {WebGLRenderingContext}
-		 */
-		this.gl = this.node.getContext("webgl", this.contextOptions);
+		const ctx = /**@type {WebGLRenderingContext}*/(this.node.getContext("webgl", this.contextOptions));
+		if(!ctx) throw new Error("[JustLibDraw] WebGL is not supported on this device");
 
-		/**
-		 * @type {JL.WebGLProgram}
-		 */
+		/** @type {WebGLRenderingContext} */
+		this.gl = ctx;
+
+		/** @type {JL.WebGLProgram | null} */
 		this.boundProgram = null;
 
-		/**
-		 * @type {JL.WebGLBuffer}
-		 */
+		/** @type {JL.WebGLBuffer | null} */
 		this.boundBuffer = null;
 
-		/**
-		 * @type {JL.WebGLTexture}
-		 */
+		/** @type {JL.WebGLTexture | null} */
 		this.boundTexture = null;
 	}
 
@@ -641,8 +644,8 @@ function Fullscreen(_canvas = canvas) {
 		Width = _canvas.width;
 		CENTER = new Vector(Width / 2, Height / 2);
 	}
-	if(!_canvas.FULLSCREEN) window.addEventListener("resize", () => {Fullscreen(_canvas);});
-	_canvas.FULLSCREEN = true;
+	if(!_canvas["FULLSCREEN"]) window.addEventListener("resize", () => {Fullscreen(_canvas);});
+	_canvas["FULLSCREEN"] = true;
 }
 
 /**
@@ -741,7 +744,7 @@ function Background(r, g = r, b = r, a = 1, _canvas = canvas) {
 	_checkCanvas();
 	var _ctx = _canvas.getContext(_canvas.renderer);
 	if(_ctx instanceof CONTEXT_2D) {
-		_ctx.fillStyle = new Color(r, g, b, a).toString();
+		_ctx.fillStyle = new Color(r, g, b, a) + "";
 		_ctx.fillRect(0, 0, _canvas.width, _canvas.height);
 	} else {
 		gl.clearColor(r, g, b, a);
@@ -766,12 +769,12 @@ function Framerate(fps) {
  * @param {number} to Final number.
  * @param {number} percent How many percent of difference starting and final number should value change.
  * @param {boolean} [fps=true]
- * @param {Function} finish
+ * @param {Function} [finish]
  * @param {number} [value=0.5]
  * @returns {number}
  */
 function Lerp(from, to, percent, fps = true, finish, value = .5) {
-	if(abs(to - from) < value && finish) {
+	if(finish && Math.abs(to - from) < value) {
 		finish();
 		return from;
 	}
@@ -819,34 +822,46 @@ function restoreGlow(_canvas = canvas) {
 }
 
 /**
- * Function which runs only once.
+ * Setup listener to call Setup() function and Draw() function.
  */
 window.addEventListener("DOMContentLoaded", () => {
-	if(typeof Setup !== "undefined") {
-		if(Setup instanceof Function) {
-			if(Setup() == "wait") return;
-			if(typeof Draw !== "undefined") {
-				if(Draw instanceof Function) {
-					_newFrame();
-				} else console.warn("[JustLibDraw] Function Setup() is overwritten!");
-			}
-		} else console.warn("[JustLibDraw] Function Setup() is overwritten!");
+	const Setup = window["Setup"];
+	const Draw = window["Draw"];
+
+	function _newFrame() {
+		const now = Date.now();
+		FPS = 1000 / (now - fpsTime);
+		fpsTime = now;
+		Draw();
+		Frames++;
+		if(FRAMERATE == 60) {
+			requestAnimationFrame(_newFrame);
+		} else {
+			setTimeout(_newFrame, 1000 / FRAMERATE);
+		}
 	}
+
+	// Validate Setup() function
+	if(typeof Setup === "undefined") return;
+	if(typeof Setup !== "function") throw new TypeError("[JustLibDraw] Function Setup() must be a function!");
+
+	// Execute Setup() function
+	if(Setup() == "wait") return;
+
+	// Validate Draw() function
+	if(typeof Draw === "undefined") return;
+	if(typeof Draw !== "function") throw new TypeError("[JustLibDraw] Function Draw() must be a function!");
+
+	// Start drawing
+	_newFrame();
 });
 
 /* Lib Functions */
-function _newFrame() {
-	var now = new Date().getTime();
-	FPS = 1000 / (now - fpsTime);
-	fpsTime = now;
-	Draw();
-	Frames++;
-	if(FRAMERATE == 60) requestAnimationFrame(_newFrame);
-	else {
-		setTimeout(_newFrame, 1000 / FRAMERATE);
-	}
-}
 
+/**
+ * @deprecated
+ * @returns {boolean}
+ */
 function _checkCanvas() {
 	if(!canvas) throw new Error("[JustLibDraw] Main canvas does not exist!");
 	else return true;
@@ -1013,12 +1028,20 @@ JL.CLAMP_TO_EDGE = WebGLRenderingContext.CLAMP_TO_EDGE;
  * @typedef {JL.UINT8 | JL.UINT16 | JL.UINT32} JL_TYPE_UNSIGNED
  */
 
-
 /**
- * 
+ * @typedef {"1f" | "1fv" | "2f" | "2fv" | "3f" | "3fv" | "4f" | "4fv"} JL_UNIFORM_TYPE_FLOAT
+ * @typedef {"1i" | "1iv" | "2i" | "2iv" | "3i" | "3iv" | "4i" | "4iv"} JL_UNIFORM_TYPE_INT
+ * @typedef {"Matrix2fv" | "Matrix3fv" | "Matrix4fv"} JL_UNIFORM_TYPE_MATRIX
+ * @typedef {JL_UNIFORM_TYPE_FLOAT | JL_UNIFORM_TYPE_INT | JL_UNIFORM_TYPE_MATRIX} JL_UNIFORM_TYPE
+ */
+
+
+// eslint-disable-next-line valid-jsdoc
+/**
+ * Resolves the type of the array
  * @param {JL_TYPE} type 
  * @param {boolean} [clamped=false]
- * @returns {Int8Array | Int16Array | Int32Array | Uint8Array | Uint16Array | Uint32Array | Float32Array}
+ * @returns {typeof Int8Array | typeof Int16Array | typeof Int32Array | typeof Uint8Array | typeof Uint8ClampedArray | typeof Uint16Array | typeof Uint32Array | typeof Float32Array}
  */
 JL._arrayFromType = function(type, clamped = false) {
 	switch(type) {
@@ -1034,7 +1057,7 @@ JL._arrayFromType = function(type, clamped = false) {
 };
 
 /**
- * 
+ * Resolves the size of the data type
  * @param {JL_TYPE} type 
  * @returns {number} Size of data type in bytes
  */
@@ -1065,33 +1088,37 @@ JL.IdentityMatrix = new Matrix([
 JL.WebGLShader = class {
 	/**
 	 * Creates new shader program
-	 * @param {JL.Renderer3D} renderer 
-	 * @param {WebGLShader} vertShader 
-	 * @param {WebGLShader} fragShader 
+	 * @param {JL.Renderer3D} renderer Renderer to create shader for
+	 * @param {WebGLShader | string} vertShader Compiled WebGL vertex shader or source code
+	 * @param {WebGLShader | string} fragShader Compiled WebGL fragment shader or source code
 	 */
 	constructor(renderer, vertShader, fragShader) {
+		/** @type {JL.Renderer3D} */
 		this.renderer = renderer;
-		// this.vertexShader = loadShader(gl, gl.VERTEX_SHADER, vertShader);
-		// this.fragmentShader = loadShader(gl, gl.VERTEX_SHADER, fragShader);
 
-		//TODO: Move loadShader and createProgram into this class
-		this.program = createProgram(this.renderer.gl, vertShader, fragShader);
+		/** @type {WebGLShader} */
+		this.vertexShader = typeof vertShader === "string" ?
+			JL.WebGLShader.compileShader(this.renderer.gl, this.renderer.gl.VERTEX_SHADER, vertShader) :
+			vertShader;
 
+		/** @type {WebGLShader} */
+		this.fragmentShader = typeof fragShader === "string" ?
+			JL.WebGLShader.compileShader(this.renderer.gl, this.renderer.gl.FRAGMENT_SHADER, fragShader) :
+			fragShader;
+
+		/** @type {WebGLProgram} */
+		this.program = JL.WebGLShader.createProgram(this.renderer.gl, this.vertexShader, this.fragmentShader);
+
+		/** @type {number} */
 		this.vertexSize = 0;
 
-		/**
-		 * @type {JL.WebGLAttribute[]}
-		 */
+		/** @type {JL.WebGLAttribute[]} */
 		this.attributes = [];
 
-		/**
-		 * @type {JL.WebGLUniform[]}
-		 */
+		/** @type {JL.WebGLUniform[]} */
 		this.uniforms = [];
 
-		/**
-		 * @type {JL.WebGLBuffer}
-		 */
+		/** @type {JL.WebGLBuffer | null} */
 		this.indexBuffer = null;
 	}
 
@@ -1114,7 +1141,7 @@ JL.WebGLShader = class {
 	/**
 	 * Creates and adds new uniform into shader program
 	 * @param {UniformOptions | string} options Uniform options or Uniform name
-	 * @param {string} type Uniform type
+	 * @param {JL_UNIFORM_TYPE} type Uniform type
 	 * @returns {JL.WebGLUniform}
 	 */
 	addUniform(options, type) {
@@ -1155,18 +1182,18 @@ JL.WebGLShader = class {
 
 	/**
 	 * 
-	 * @param {DrawOptions | number} options Drawing options or rendering mode
+	 * @param {DrawOptions | number} [options] Drawing options or rendering mode
 	 */
-	draw(options) {
+	draw(options = {}) {
 		let {
 			mode = WebGLRenderingContext.TRIANGLES,	// eslint-disable-line prefer-const
 			offset = 0,	// eslint-disable-line prefer-const
 			count = undefined
-		} = options;
+		} = typeof options === "number" ? {} : options;
 
 		//Check if there are any attributes to draw
 		const l = this.attributes.length;
-		if(l == 0) return;
+		if(l === 0) return;
 
 		this.bind();
 
@@ -1174,7 +1201,7 @@ JL.WebGLShader = class {
 		if(typeof options === "number") mode = options;
 
 		//Calculate count
-		if(count == undefined) count = this.indexBuffer ? this.indexBuffer.length : this.attributes[0].buffer.length / this.attributes[0].size;
+		if(count === undefined) count = this.indexBuffer ? this.indexBuffer.length : this.attributes[0].buffer.length / this.attributes[0].size;
 
 		//Enable and use all attributes
 		for(var i = 0; i < l; i++) {
@@ -1188,14 +1215,89 @@ JL.WebGLShader = class {
 				this.indexBuffer.dataType,
 				offset * this.vertexSize
 			);
-		}
-		else {
+		} else {
 			this.renderer.gl.drawArrays(
 				mode,
 				offset,
 				count
 			);
 		}
+	}
+
+	/**
+	 * @static
+	 * @param {WebGLRenderingContext} gl
+	 * @param {number} type WebGLRenderingContext.FRAGMENT_SHADER or WebGLRenderingContext.VERTEX_SHADER
+	 * @param {string} source Shader source code
+	 * @return {WebGLShader} 
+	 */
+	static compileShader(gl, type, source) {
+		const shader = gl.createShader(type);
+		if(!shader) throw new Error("[JustLibDraw] Failed to create shader");
+
+		// Replace tabs with 4 spaces
+		source = source.replace(/\t/, "    ");
+
+		// Compile shader
+		gl.shaderSource(shader, source);
+		gl.compileShader(shader);
+
+		// Check for errors
+		if(!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+			// Get error message
+			const err = gl.getShaderInfoLog(shader);
+			if(!err) throw new Error("[JustLibDraw] Failed to compile shader: Unknown error");
+
+			// Get error line and column
+			const [
+				_line = NaN,
+				_column = NaN,
+				message = "Unknown error"
+			] = err.match(/ERROR: ([0-9]+?):([0-9]+?): (.+)/) || [];
+			const lines = source.split("\n");
+
+			// Parse line and column into numbers
+			const line = +_line;
+			const column = +_column;
+
+			// Check if line and column are valid
+			if(isNaN(line) || isNaN(column) || !lines[line - 1]) throw new Error("[JustLibDraw] Failed to compile shader:\n" + err);
+
+			// Add error message to source code
+			lines.splice(line, 0, " ".repeat(column) + "^ " + message);
+
+			// Get view of source code
+			const view = lines.slice(Math.max(0, line - 4), line + 3);
+
+			// Throw the error
+			throw new Error("[JustLibDraw] Failed to compile shader:\n" + err + "\n\n" + view.join("\n"));
+		}
+
+		return shader;
+	}
+
+	/**
+	 * @static
+	 * @param {WebGLRenderingContext} gl
+	 * @param {WebGLShader} vertexShader Vertex shader
+	 * @param {WebGLShader} fragmentShader Fragment shader
+	 * @return {WebGLProgram} 
+	 */
+	static createProgram(gl, vertexShader, fragmentShader) {
+		// Create the shader program
+		const shaderProgram = gl.createProgram();
+		if(!shaderProgram) throw new Error("[JustLibDraw] Failed to create shader program");
+
+		gl.attachShader(shaderProgram, vertexShader);
+		gl.attachShader(shaderProgram, fragmentShader);
+		gl.linkProgram(shaderProgram);
+
+		//Handle errors
+		if(!gl.getProgramParameter(shaderProgram, gl.LINK_STATUS)) {
+			throw new Error("[JustLibDraw] Failed to link shader program:\n" + gl.getProgramInfoLog(shaderProgram));
+		}
+
+		return shaderProgram;
 	}
 };
 
@@ -1352,7 +1454,7 @@ JL.WebGLUniform = class {
 	/**
 	 * @typedef {Object} UniformOptions
 	 * @prop {string} name Uniform name
-	 * @prop {"1f"|"1fv"|"1i"|"1iv"|"2f"|"2fv"|"2i"|"2iv"|"3f"|"3fv"|"3i"|"3iv"|"4f"|"4fv"|"4i"|"4iv"|"Matrix2fv"|"Matrix3fv"|"Matrix4fv"} type Type of the uniform
+	 * @prop {JL_UNIFORM_TYPE} type Type of the uniform
 	 */
 
 	/**
@@ -1364,9 +1466,11 @@ JL.WebGLUniform = class {
 		name,
 		type
 	}) {
+		const gl = shader.renderer.gl;
+
 		//Check for valid data type
 		const _methodName = "uniform" + type;
-		if(!(_methodName in shader.renderer.gl)) throw new TypeError(type + " is not valid uniform data type");
+		if(!(_methodName in gl)) throw new TypeError(type + " is not valid uniform data type");
 
 		//Add properties
 		this.shader = shader;
@@ -1374,30 +1478,29 @@ JL.WebGLUniform = class {
 		this.type = type;
 
 		//Get uniform location
-		this.location = this.shader.renderer.gl.getUniformLocation(this.shader.program, this.name);
+		this.location = gl.getUniformLocation(this.shader.program, this.name);
 
 		//Preprocessing values for better performance
-		this._size = +type.match(/[1234]/);
+		this._size = +(type.match(/[1234]/) || 0);
 		this._isInt = /[1234]i/.test(type);
 		this._isMatrix = type.indexOf("Matrix") != -1;
 		this._isVector = /[fi]v/.test(type) || this._size > 1 && !this._isMatrix;
 
-		//TODO: Change this weird method system
+		if(this._size === 0) throw new TypeError(`Invalid uniform size "${type}"`);
 
-		const method = function() {
-			shader.renderer.gl[_methodName].apply(shader.renderer.gl, arguments);
-		};
+		//Precache webgl method
+		const method = gl[_methodName];
 
 		//Single values
-		if(this._size == 1) this._method = value => method(this.location, value);
+		if(this._size == 1) this._method = value => method.call(gl, this.location, value);
 
 		//Matrices
-		else if(this._isMatrix && this._isInt) this._method = value => method(this.location, false, new Int32Array(value.toArray ? value.toArray() : value));
-		else if(this._isMatrix && !this._isInt) this._method = value => method(this.location, false, new Float32Array(value.toArray ? value.toArray() : value));
+		else if(this._isMatrix && this._isInt) this._method = value => method.call(gl, this.location, false, new Int32Array(value.toArray ? value.toArray() : value));
+		else if(this._isMatrix && !this._isInt) this._method = value => method.call(gl, this.location, false, new Float32Array(value.toArray ? value.toArray() : value));
 
 		//Vectors
-		else if(this._isVector && this._isInt) this._method = value => method(this.location, new Int32Array(value.toArray ? value.toArray(this._size) : value));
-		else if(this._isVector && !this._isInt) this._method = value => method(this.location, new Float32Array(value.toArray ? value.toArray(this._size) : value));
+		else if(this._isVector && this._isInt) this._method = value => method.call(gl, this.location, new Int32Array(value.toArray ? value.toArray(this._size) : value));
+		else if(this._isVector && !this._isInt) this._method = value => method.call(gl, this.location, new Float32Array(value.toArray ? value.toArray(this._size) : value));
 
 		//Unknown
 		else throw new Error("Cannot determine uniform update function based on uniform data type");
@@ -1823,6 +1926,7 @@ JL.OrthographicCamera = class extends JL.Camera {
 
 /**
  * Loads shader
+ * @deprecated Use `JL.WebGLShader.createShader(...)` instead
  * @param {WebGLRenderingContext} gl WebGL Rendering Context
  * @param {number} type Vertex or Fragment Shader
  * @param {string} source Source code
@@ -1857,6 +1961,7 @@ function loadShader(gl, type, source) {
 
 /**
  * Initialize and links shader program
+ * @deprecated Use `JL.WebGLShader.createProgram(...)` instead
  * @param {WebGLRenderingContext} gl WebGL Rendering Context
  * @param {string} vsSource Vertex or Fragment Shader
  * @param {string} fsSource Source code
@@ -1933,7 +2038,7 @@ var changeBuffer = updateBuffer;
  * @param {WebGLRenderingContext} gl WebGL Rendering Context
  * @param {WebGLProgram} program Shader Program
  * @param {WebGLUniformLocation} location Uniform location
- * @param {"1f"|"1fv"|"1i"|"1iv"|"2f"|"2fv"|"2i"|"2iv"|"3f"|"3fv"|"3i"|"3iv"|"4f"|"4fv"|"4i"|"4iv"|"Matrix2fv"|"Matrix3fv"|"Matrix4fv"} datatype uniform data type
+ * @param {JL_UNIFORM_TYPE} datatype uniform data type
  * @param {Array} data Data array
  */
 function updateUniform(gl, program, location, datatype, data) {
@@ -1988,7 +2093,7 @@ function manageAttribute(gl, program, attribute, buffer, size = 3, type = gl.FLO
  * Creates new texture from image or url of image
  * @deprecated Use `new JL.WebGLTexture(...)` instead
  * @param {WebGLRenderingContext} gl WebGL Rendering Context
- * @param {Image|HTMLImageElement|HTMLVideoElement|String} [content] URL of the image, or image or video object
+ * @param {HTMLImageElement | HTMLVideoElement | string} [content] URL of the image, or image or video object
  * @returns {WebGLTexture} Created texture
  */
 function createTexture(gl, content = null) {
@@ -2024,7 +2129,7 @@ function createTexture(gl, content = null) {
  * @deprecated Use `JL.WebGLTexture#update(...)` instead
  * @param {WebGLRenderingContext} gl
  * @param {WebGLTexture} texture
- * @param {Image|HTMLImageElement|HTMLVideoElement|string} content
+ * @param {HTMLImageElement | HTMLVideoElement | string} content
  */
 function updateTexture(gl, texture, content) {
 	//Bind image with texture
