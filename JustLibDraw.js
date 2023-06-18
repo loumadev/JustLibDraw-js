@@ -76,26 +76,55 @@ const Project = {
 };
 
 const Rotate3D = {
+	/**
+	 * Rotates matrix around X axis
+	 * @param {Matrix} matrix Matrix to rotate
+	 * @param {number} angle Angle in radians
+	 * @returns {Matrix}
+	 */
 	x: function(matrix, angle) {
+		const cos = Math.cos(angle);
+		const sin = Math.sin(angle);
+
 		return new Matrix([
 			[1, 0, 0, 0],
-			[0, Math.cos(angle), -Math.sin(angle), 0],
-			[0, Math.sin(angle), Math.cos(angle), 0],
+			[0, cos, -sin, 0],
+			[0, sin, cos, 0],
 			[0, 0, 0, 1]
 		]).mult(matrix);
 	},
+
+	/**
+	 * Rotates matrix around Y axis
+	 * @param {Matrix} matrix Matrix to rotate
+	 * @param {number} angle Angle in radians
+	 * @returns {Matrix}
+	 */
 	y: function(matrix, angle) {
+		const cos = Math.cos(angle);
+		const sin = Math.sin(angle);
+
 		return new Matrix([
-			[Math.cos(angle), 0, Math.sin(angle), 0],
+			[cos, 0, sin, 0],
 			[0, 1, 0, 0],
-			[-Math.sin(angle), 0, Math.cos(angle), 0],
+			[-sin, 0, cos, 0],
 			[0, 0, 0, 1]
 		]).mult(matrix);
 	},
+
+	/**
+	 * Rotates matrix around Z axis
+	 * @param {Matrix} matrix Matrix to rotate
+	 * @param {number} angle Angle in radians
+	 * @returns {Matrix}
+	 */
 	z: function(matrix, angle) {
+		const cos = Math.cos(angle);
+		const sin = Math.sin(angle);
+
 		return new Matrix([
-			[Math.cos(angle), -Math.sin(angle), 0, 0],
-			[Math.sin(angle), Math.cos(angle), 0, 0],
+			[cos, -sin, 0, 0],
+			[sin, cos, 0, 0],
 			[0, 0, 1, 0],
 			[0, 0, 0, 1]
 		]).mult(matrix);
@@ -1865,10 +1894,13 @@ JL.PerspectiveCamera = class extends JL.Camera {
 	}
 
 	updateProjectionMatrix() {
+		const oneOverTan = 1 / Math.tan(this.fov / 2);
+		const oneOverFarMinusNear = 1 / (this.far - this.near);
+
 		this.projectionMatrix = new Matrix([
-			[1 / Math.tan(this.fov / 2) / this.aspect, 0, 0, 0],
-			[0, 1 / Math.tan(this.fov / 2), 0, 0],
-			[0, 0, (this.far + this.near) * (1 / (this.near - this.far)), (2 * this.near * this.far) * (1 / (this.near - this.far))],
+			[oneOverTan / this.aspect, 0, 0, 0],
+			[0, oneOverTan, 0, 0],
+			[0, 0, (this.far + this.near) * oneOverFarMinusNear, (2 * this.near * this.far) * oneOverFarMinusNear],
 			[0, 0, -1, 0]
 		]);
 	}
@@ -1916,11 +1948,12 @@ JL.OrthographicCamera = class extends JL.Camera {
 	}
 
 	updateProjectionMatrix() {
+		const oneOverNearMinusFar = 1 / (this.near - this.far);
 		this.projectionMatrix = new Matrix([
 			[2 / (this.right - this.left), 0, 0, 0,],
 			[0, 2 / (this.top - this.bottom), 0, 0],
-			[0, 0, 2 / (this.near - this.far), 0],
-			[(this.left + this.right) / (this.left - this.right), (this.bottom + this.top) / (this.bottom - this.top), (this.near + this.far) / (this.near - this.far), 1]
+			[0, 0, 2 * oneOverNearMinusFar, 0],
+			[(this.left + this.right) / (this.left - this.right), (this.bottom + this.top) / (this.bottom - this.top), (this.near + this.far) * oneOverNearMinusFar, 1]
 		]);
 	}
 };
