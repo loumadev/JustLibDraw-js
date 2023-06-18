@@ -1236,7 +1236,7 @@ JL.WebGLShader = class {
 		if(!shader) throw new Error("[JustLibDraw] Failed to create shader");
 
 		// Replace tabs with 4 spaces
-		source = source.replace(/\t/, "    ");
+		source = source.replace(/\t/g, "  ");
 
 		// Compile shader
 		gl.shaderSource(shader, source);
@@ -1250,27 +1250,30 @@ JL.WebGLShader = class {
 
 			// Get error line and column
 			const [
+				match,
+				zero,
 				_line = NaN,
-				_column = NaN,
 				message = "Unknown error"
 			] = err.match(/ERROR: ([0-9]+?):([0-9]+?): (.+)/) || [];
 			const lines = source.split("\n");
 
 			// Parse line and column into numbers
 			const line = +_line;
-			const column = +_column;
 
 			// Check if line and column are valid
-			if(isNaN(line) || isNaN(column) || !lines[line - 1]) throw new Error("[JustLibDraw] Failed to compile shader:\n" + err);
-
-			// Add error message to source code
-			lines.splice(line, 0, " ".repeat(column) + "^ " + message);
+			if(isNaN(line) || !lines[line - 1]) throw new Error("[JustLibDraw] Failed to compile shader:\n" + err);
 
 			// Get view of source code
-			const view = lines.slice(Math.max(0, line - 4), line + 3);
+			const whitespace = (lines[line - 1].match(/^\s*/) || [""])[0].length;
+			const padding = lines.length.toString().length + 1;
+			const numbered = lines
+				.map((line, i) => `${" ".repeat(padding - (i + 1).toString().length)}${i + 1} | ${line}`);
+
+			numbered.splice(line, 0, " ".repeat(padding + 3 + whitespace) + "~".repeat(lines[line - 1].length - whitespace));
+			const view = numbered.slice(Math.max(0, line - 4), line + 3);
 
 			// Throw the error
-			throw new Error("[JustLibDraw] Failed to compile shader:\n" + err + "\n\n" + view.join("\n"));
+			throw new Error("[JustLibDraw] Failed to compile shader:\n" + err + "\n" + view.join("\n") + "\n");
 		}
 
 		return shader;
