@@ -23,6 +23,7 @@ var /** @deprecated */canvas, /** @deprecated */ctx,
  /** @deprecated */CENTER, FPS = 60,
 	Frames = 0,
 	fpsTime = 0,
+	deltaTime = 0,
 	FRAMERATE = 60,
 	/** @deprecated */
 	CANVASES = {
@@ -859,7 +860,8 @@ window.addEventListener("DOMContentLoaded", () => {
 
 	function _newFrame() {
 		const now = Date.now();
-		FPS = 1000 / (now - fpsTime);
+		deltaTime = now - fpsTime;
+		FPS = 1000 / deltaTime;
 		fpsTime = now;
 		Draw();
 		Frames++;
