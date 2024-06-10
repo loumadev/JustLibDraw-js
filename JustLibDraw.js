@@ -1418,7 +1418,27 @@ JL.WebGLBuffer = class {
 
 JL.WebGLAttribute = class {
 	/**
-	 * @typedef {Object} AttributeOptions
+	 * @typedef {Omit<BufferOptions, "target">} _AttributeOptions_BufferOptions
+	 */
+
+	/**
+	 * @typedef {Object} _AttributeOptions_Buffer
+	 * @prop {JL.WebGLBuffer} buffer Buffer to use
+	 */
+
+	/**
+	 * @typedef {Object} _AttributeOptions_General
+	 * @prop {string} name Name of the attribute variable whose location to get
+	 * @prop {1 | 2 | 3 | 4} size Number of components per vertex attribute
+	 * @prop {boolean} [normalize=false] Specifying whether integer data values should be normalized into a certain range when being casted to a float
+	 */
+
+	/**
+	 * @typedef {_AttributeOptions_General & (_AttributeOptions_Buffer | _AttributeOptions_BufferOptions)} AttributeOptions
+	 */
+
+	/**
+	 * @typedef {Object} __AttributeOptions
 	 * @prop {string} name Name of the attribute variable whose location to get
 	 * @prop {JL_TYPE} dataType Data type of the attribute content
 	 * @prop {1 | 2 | 3 | 4} size Number of components per vertex attribute
@@ -1433,15 +1453,13 @@ JL.WebGLAttribute = class {
 	 * @param {JL.WebGLShader} shader Shader program
 	 * @param {AttributeOptions} options Attribute options
 	 */
-	constructor(shader, {
-		name,
-		dataType,
-		size,
-		data = [],
-		normalize = false,
-		usage = WebGLRenderingContext.STATIC_DRAW,
-		clamped = false
-	}) {
+	constructor(shader, options) {
+		const {
+			name,
+			size,
+			normalize = false,
+		} = options;
+
 		//Add properties
 		this.shader = shader;
 		this.name = name;
@@ -1452,8 +1470,27 @@ JL.WebGLAttribute = class {
 		//this.shader.bind();
 
 		//Setup a buffer
-		this.buffer = new JL.WebGLBuffer(this.shader, {dataType, data, target: WebGLRenderingContext.ARRAY_BUFFER, usage, clamped});
-		this.update = this.buffer.update;
+		if("buffer" in options) {
+			this.setBuffer(options.buffer);
+		} else {
+			const {
+				dataType,
+				data = [],
+				usage = WebGLRenderingContext.STATIC_DRAW,
+				clamped = false
+			} = options;
+
+			//Create new buffer
+			const buffer = new JL.WebGLBuffer(this.shader, {
+				dataType,
+				data,
+				target: WebGLRenderingContext.ARRAY_BUFFER,
+				usage,
+				clamped
+			});
+
+			this.setBuffer(buffer);
+		}
 
 		this.shader.bind();
 
@@ -1474,6 +1511,14 @@ JL.WebGLAttribute = class {
 
 		this.shader.renderer.gl.disableVertexAttribArray(this.location);
 		this.isEnabled = false;
+	}
+
+	setBuffer(buffer) {
+		this.buffer = buffer;
+		this.update = data => {
+			console.warn(`[JustLibDraw] JL.WebGLAttribute.update(...) is deprecated! Use JL.WebGLBuffer.update(...) instead.`);
+			this.buffer.update(data);
+		};
 	}
 
 	use() {
