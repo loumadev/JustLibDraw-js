@@ -858,17 +858,19 @@ window.addEventListener("DOMContentLoaded", () => {
 	const Setup = window["Setup"];
 	const Draw = window["Draw"];
 
-	function _newFrame() {
-		const now = Date.now();
-		deltaTime = now - fpsTime;
+	// eslint-disable-next-line valid-jsdoc
+	/** @type {(time: number) => void} */
+	function _newFrame(time) {
+		deltaTime = time - fpsTime;
 		FPS = 1000 / deltaTime;
-		fpsTime = now;
-		Draw();
+		Draw(deltaTime);
+		fpsTime = TimingInterface.getTime();
 		Frames++;
-		if(FRAMERATE == 60) {
+
+		if(FRAMERATE === 60) {
 			requestAnimationFrame(_newFrame);
 		} else {
-			setTimeout(_newFrame, 1000 / FRAMERATE);
+			setTimeout(() => _newFrame(TimingInterface.getTime()), 1000 / FRAMERATE);
 		}
 	}
 
@@ -877,14 +879,15 @@ window.addEventListener("DOMContentLoaded", () => {
 	if(typeof Setup !== "function") throw new TypeError("[JustLibDraw] Function Setup() must be a function!");
 
 	// Execute Setup() function
-	if(Setup() == "wait") return;
+	if(Setup() === "wait") return;
 
 	// Validate Draw() function
 	if(typeof Draw === "undefined") return;
 	if(typeof Draw !== "function") throw new TypeError("[JustLibDraw] Function Draw() must be a function!");
 
 	// Start drawing
-	_newFrame();
+	fpsTime = TimingInterface.getTime();
+	requestAnimationFrame(_newFrame);
 });
 
 /* Lib Functions */
